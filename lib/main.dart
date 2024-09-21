@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia_app/controllers/login_or_register.dart';
+import 'package:socialmedia_app/pages/loading_screen.dart';
 import 'package:socialmedia_app/pages/register_page.dart';
 import 'package:socialmedia_app/theme/light_mode.dart';
 import 'controllers/providers/UserProvider.dart';
@@ -26,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginOrRegister(),
+      home: LoadingScreen(),
       theme: lightMode,
     );
   }

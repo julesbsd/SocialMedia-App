@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia_app/components/my_button.dart';
 import 'package:socialmedia_app/components/my_textfield.dart';
@@ -10,9 +12,20 @@ import 'package:socialmedia_app/model/user.dart';
 import 'package:socialmedia_app/controllers/json_handler.dart';
 import 'package:socialmedia_app/controllers/persistance_handler.dart';
 import 'package:socialmedia_app/controllers/providers/UserProvider.dart';
+import 'package:socialmedia_app/pages/home_page.dart';
 
-class RegisterPage extends StatelessWidget {
+class RegisterPage extends StatefulWidget {
+  final void Function()? onTap;
+
+  RegisterPage({super.key, required this.onTap});
+
+  @override
+  State<RegisterPage> createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   var profileImage = '';
+
   // name, email and password controller
   final TextEditingController emailController =
       TextEditingController(text: "julesbsd@gmail.com");
@@ -26,10 +39,21 @@ class RegisterPage extends StatelessWidget {
   final TextEditingController confirmPasswordController =
       TextEditingController(text: 'password');
 
-  // Tap to go to register page
-  final void Function()? onTap;
+  final ImagePicker _picker = ImagePicker();
+  File? _image;
 
-  RegisterPage({super.key, required this.onTap});
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+
+      final bytes = await pickedFile.readAsBytes();
+      profileImage = base64Encode(bytes);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,12 +111,84 @@ class RegisterPage extends StatelessWidget {
               obscureText: true,
               controller: confirmPasswordController,
             ),
-
+            const SizedBox(height: 10),
+            if (_image != null)
+              Column(
+                children: [
+                  Image.file(
+                    _image!,
+                    height: 100,
+                    width: 100,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondary,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(25),
+                margin: const EdgeInsets.symmetric(horizontal: 25),
+                child: Center(
+                  child: Text("Choose Profile Image"),
+                ),
+              ),
+            ),
             const SizedBox(height: 25),
 
             // login button
             GestureDetector(
                 onTap: () async {
+                  if (nameController.text.isEmpty ||
+                      emailController.text.isEmpty ||
+                      passwordController.text.isEmpty ||
+                      confirmPasswordController.text.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Inscription Failed'),
+                          content: Text('Tous les champs sont requis.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
+
+                  if (passwordController.text !=
+                      confirmPasswordController.text) {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text('Inscription Failed'),
+                          content:
+                              Text('Les mos de passes ne correspondent pas.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
+
                   String body = await JSONHandler().register(
                       nameController.text,
                       emailController.text,
@@ -102,7 +198,7 @@ class RegisterPage extends StatelessWidget {
                   Response res = await HttpService()
                       .makePostRequestWithoutToken(postRegister, body);
 
-                  if (res.statusCode == 200) {
+                  if (res.statusCode == 201) {
                     final Map<String, dynamic> responseData =
                         jsonDecode(res.body);
 
@@ -119,6 +215,11 @@ class RegisterPage extends StatelessWidget {
 
                     print('Token: $getToken');
                     print('User: ${user.name}');
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
                   } else {
                     // Handle error response
                     showDialog(
@@ -164,7 +265,7 @@ class RegisterPage extends StatelessWidget {
                       TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
                 GestureDetector(
-                  onTap: onTap,
+                  onTap: widget.onTap,
                   child: Text(
                     'Login Now',
                     style: TextStyle(

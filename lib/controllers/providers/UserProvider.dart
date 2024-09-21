@@ -1,18 +1,22 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:socialmedia_app/model/user.dart';
 
 class UserProvider with ChangeNotifier {
-  User? _user;
+  User user = User(
+    name: '',
+    email: '',
+    posts: [],
+    profileImage: '',
+  );
 
-  User? get user => _user;
-
-  void setUser(User user) {
-    _user = user;
+  void setUser(User newUser) {
+    user = newUser;
     notifyListeners();
   }
 
-  void clearUser() {
-    _user = null;
-    notifyListeners();
+  User get getUser {
+    return user;
   }
 }

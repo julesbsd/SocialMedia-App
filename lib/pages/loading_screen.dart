@@ -20,10 +20,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   void _passLoadingScreen() async {
-    // Assuming you have a method to get the token from persistence handler
-
     String? token = await PersistanceHandler().getAccessToken();
-
+    print('token passLoadingScreen:  $token');
     if (token != null) {
       Response res =
           await HttpService().makePostRequestWithToken(PostLogin, token);
@@ -41,9 +39,13 @@ class _LoadingScreenState extends State<LoadingScreen> {
       }
 
       print("Token retrieved: $token");
+      print("autologin response: ${res.statusCode}");
     } else {
-      // Handle the case where token is null
       print("No token found");
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginOrRegister()),
+      );
     }
   }
 

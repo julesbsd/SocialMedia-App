@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -13,7 +14,18 @@ import 'package:socialmedia_app/controllers/persistance_handler.dart';
 import 'package:socialmedia_app/controllers/providers/UserProvider.dart';
 import 'package:socialmedia_app/pages/home_page.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  final void Function()? onTap;
+
+  LoginPage({super.key, required this.onTap});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  late UserProvider pUser;
+
   // email and password controller
   final TextEditingController emailController =
       TextEditingController(text: "julesbsd@gmail.com");
@@ -21,10 +33,11 @@ class LoginPage extends StatelessWidget {
   final TextEditingController passwordController =
       TextEditingController(text: "password");
 
-  // Tap to go to register page
-  final void Function()? onTap;
-
-  LoginPage({super.key, required this.onTap});
+  @override
+  void initState() {
+    super.initState();
+    pUser = Provider.of<UserProvider>(context, listen: false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,17 +100,16 @@ class LoginPage extends StatelessWidget {
                     final String token = responseData['token'];
                     final Map<String, dynamic> userData = responseData['user'];
 
-                    // Créer un objet User à partir des données reçues
                     User user = User.fromJson(userData);
+                    // inspect(user);
 
-                    // Save token and user data using PersistenceHandler
                     await PersistanceHandler().setAccessToken(token);
-                    Provider.of<UserProvider>(context, listen: false)
-                        .setUser(user);
+                    pUser.setUser(user);
 
                     // Vérifier les données sauvegardées
                     var getToken = await PersistanceHandler().getAccessToken();
-                    User? getUser = await PersistanceHandler().getUser();
+                    User? getUser = await pUser.getUser;
+                    // inspect(getUser);
 
                     print('Token: $getToken');
                     print('User: ${user.name}');
@@ -151,7 +163,7 @@ class LoginPage extends StatelessWidget {
                       TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
                 GestureDetector(
-                  onTap: onTap,
+                  onTap: widget.onTap,
                   child: Text(
                     'Register Now',
                     style: TextStyle(
