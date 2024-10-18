@@ -12,7 +12,7 @@ import 'package:socialmedia_app/model/user.dart';
 import 'package:socialmedia_app/controllers/json_handler.dart';
 import 'package:socialmedia_app/controllers/persistance_handler.dart';
 import 'package:socialmedia_app/controllers/providers/UserProvider.dart';
-import 'package:socialmedia_app/pages/home_page.dart';
+import 'package:socialmedia_app/pages/discussion_page.dart';
 
 class LoginPage extends StatefulWidget {
   final void Function()? onTap;
@@ -110,13 +110,29 @@ class _LoginPageState extends State<LoginPage> {
                     var getToken = await PersistanceHandler().getAccessToken();
                     User? getUser = await pUser.getUser;
                     // inspect(getUser);
+                    if (res.statusCode == 200) {
+                      print('succes 200');
+                      Response conversationRes = await HttpService()
+                          .makeGetRequestWithToken(getConversations);
 
+                      if (conversationRes.statusCode == 200) {
+                        List<dynamic> conversations =
+                            jsonDecode(conversationRes.body);
+                        // inspect('conversations:' + conversationRes.body);
+                        pUser.setConversations(conversations);
+                      }
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => DiscussionPage()),
+                      );
+                    }
                     print('Token: $getToken');
                     print('User: ${user.name}');
 
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
+                      MaterialPageRoute(builder: (context) => DiscussionPage()),
                     );
                   } else {
                     // Handle error response

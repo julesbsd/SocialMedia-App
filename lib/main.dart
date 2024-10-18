@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:socialmedia_app/controllers/login_or_register.dart';
+import 'package:socialmedia_app/controllers/providers/PageProvider.dart';
 import 'package:socialmedia_app/pages/loading_screen.dart';
 import 'package:socialmedia_app/pages/register_page.dart';
 import 'package:socialmedia_app/theme/light_mode.dart';
@@ -13,6 +14,9 @@ void main() {
       providers: [
         ChangeNotifierProvider(
             create: (_) => UserProvider()), // Ajout de votre UserProvider ici
+        ChangeNotifierProvider(
+          create: (_) => Pageprovider(), // Ajout de votre UserProvider ici
+        ),
       ],
       child: MyApp(), // Votre classe principale de l'application
     ),

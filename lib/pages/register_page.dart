@@ -12,7 +12,7 @@ import 'package:socialmedia_app/model/user.dart';
 import 'package:socialmedia_app/controllers/json_handler.dart';
 import 'package:socialmedia_app/controllers/persistance_handler.dart';
 import 'package:socialmedia_app/controllers/providers/UserProvider.dart';
-import 'package:socialmedia_app/pages/home_page.dart';
+import 'package:socialmedia_app/pages/discussion_page.dart';
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
@@ -218,7 +218,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
+                      MaterialPageRoute(builder: (context) => DiscussionPage()),
                     );
                   } else {
                     // Handle error response

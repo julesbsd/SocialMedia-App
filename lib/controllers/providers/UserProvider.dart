@@ -9,6 +9,7 @@ class UserProvider with ChangeNotifier {
     email: '',
     posts: [],
     profileImage: '',
+    conversations: [],
   );
 
   void setUser(User newUser) {
@@ -19,4 +20,18 @@ class UserProvider with ChangeNotifier {
   User get getUser {
     return user;
   }
+
+  void setConversations(List<dynamic> newConversations) {
+    user.conversations = newConversations.cast<Conversation>();
+    notifyListeners();
+  }
+
+  List<dynamic> get getConversations {
+    return user.conversations;
+  }
+
+  // void addConversation(String newConversation) {
+  //   user.conversations?.add(newConversation);
+  //   notifyListeners();
+  // }
 }
